@@ -1,0 +1,81 @@
+# 日志
+logging:
+  config: classpath:log4j.xml
+  level:
+    cn:
+      gdpu:
+        mapper: debug
+#mybatis配置
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true #下划线转驼峰命名
+  mapper-locations: classpath:mapper/*DAO.xml
+  type-aliases-package: cn.gdpu.bean
+
+# 端口限定
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
+
+# 连接池 hikari
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  resources:
+    static-locations: classpath:/
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .html
+    content-type: text/html
+    charset: UTF-8
+    request-context-attribute: req  #req访问request
+    enabled: false
+    cache: false #缓存配置
+  datasource:
+
+    driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      auto-commit: true # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      idle-timeout: 180000 # 空闲连接存活最大时间，默认600000（10分钟）
+      max-lifetime: 1800000 # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      maximum-pool-size: 10 # 连接池最大连接数，默认是10
+      minimum-idle: 2  # 最小空闲连接数量
+      pool-name: MyHikariCP # 连接池母子
+    url: jdbc:mysql://127.0.0.1:3306/online_course_selection_system?useSSL=false&characterEncoding=UTF-8
+    username: root
+    password: 123456
+  #文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  #  # 关闭默认模板引擎缓存
+  thymeleaf:
+    cache: false
+
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force-response: true
+      force-request: true
+
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 300
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 500
+        min-idle: 0
+    lettuce:
+      shutdown-timeout: 0
+
+
