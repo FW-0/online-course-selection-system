@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gdpu.mapper.UserCourseDAO">
+    <resultMap id="userCourseMap" type="UserCourse">
+        <id property="id" column="id"></id>
+        <result property="username" column="user_account"></result>
+        <result property="courseId" column="course_id"></result>
+        <result property="selectTime" column="select_time"></result>
+    </resultMap>
+    
+    <select id="selectByUsername" resultType="int">
+        select course_id from user_course where user_account = #{username}
+    </select>
+    
+    <insert id="insert" >
+        insert into user_course values(null,#{username},#{courseId},#{selectTime})
+    </insert>
+    
+    <delete id="delete" >
+        delete from user_course where course_id = #{courseId} and user_account = #{username}
+    </delete>
+    
+    <select id="checkCourse" resultType="int">
+        select course_id from user_course where user_account = #{username} and course_id = #{courseId}
+    </select>
+    
+    <select id="selectAll" resultMap="userCourseMap">
+        select * from user_course 
+    </select>
+</mapper>

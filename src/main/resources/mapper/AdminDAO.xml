@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gdpu.mapper.AdminDAO">
+    <resultMap id="adminMap" type="user">
+        <id property="username" column="admin_account"></id>
+        <result property="password" column="admin_password"></result>
+        <result property="role" column="role"></result>
+    </resultMap>
+    
+    <select id="login" resultMap="adminMap">
+        select admin_account,admin_password,role from admin where admin_account = #{username}
+    </select>
+    
+    
+</mapper>

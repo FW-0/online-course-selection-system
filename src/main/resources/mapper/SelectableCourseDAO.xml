@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gdpu.mapper.SelectableCourseDAO">
+    <resultMap id="selectableCourseMap" type="selectableCourse">
+        <id property="courseId" column="course_id"></id>
+        <result property="collegeId" column="college_id"></result>
+        <result property="courseName" column="course_name"></result>
+        <result property="collegeName" column="name"></result>
+        <result property="teacher" column="teacher"></result>
+        <result property="type" column="type"></result>
+        <result property="courseScore" column="course_score"></result>
+        <result property="stock" column="stock"></result>
+        <result property="address" column="address"></result>
+        <result property="description" column="description"></result>
+<!--        <result property="selectTime" column="select_time"></result>-->
+        <result property="isHide" column="flag"></result>
+    </resultMap>
+
+    <select id="selectCourses" resultMap="selectableCourseMap">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id
+    </select>
+
+    <select id="selectCoursesStocks" resultMap="selectableCourseMap">
+        select sc.course_id, sc.stock, sc.flag
+        from selectable_course sc, college
+        where sc.college_id = college.college_id
+        <choose>
+            <when test="username != 'admin'">
+                and flag = 1
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectCoursesByType" resultMap="selectableCourseMap">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id and sc.type = #{type}
+        <choose>
+            <when test="username != 'admin'">
+                and stock > 0 and flag = 1
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectCoursesByCollege" resultMap="selectableCourseMap">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id and college.name = #{name}
+        <choose>
+            <when test="username != 'admin'">
+                and stock > 0 and flag = 1
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectCourseByMemberCount" resultMap="selectableCourseMap">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id
+        and (stock between #{start} and #{end}-1)
+        <choose>
+            <when test="username != 'admin'">
+                and flag = 1
+            </when>
+        </choose>
+    </select>
+
+    <update id="updateAddCourseStock">
+        update selectable_course set stock = stock + 1
+        where course_id = #{courseId}
+    </update>
+
+    <update id="updateMinCourseStock">
+        update selectable_course set stock = stock - 1
+        where course_id = #{courseId} and stock > 0
+    </update>
+
+    <select id="getStockByCourseId" resultType="int">
+        select stock from selectable_course where course_id = #{courseId}
+    </select>
+
+    <select id="selectByCourseName" resultMap="selectableCourseMap">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id
+        and course_name like concat('%', #{name}, '%')
+        <choose>
+            <when test="username != 'admin'">
+                and stock > 0 and flag = 1
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectByUser" resultMap="selectableCourseMap">
+        select t.* from
+            (select sc.*, college.name
+             from selectable_course sc, college
+             where sc.college_id = college.college_id) t
+                left outer join user_course on user_course.course_id = t.course_id
+        where user_account = #{username}
+        order by t.course_id asc
+    </select>
+
+    <select id="selectedCourses" resultMap="selectableCourseMap">
+        select
+            t.course_id,
+            t.course_name,
+            t.college_id,
+            t.college_name,
+            t.teacher,
+            t.type,
+            t.course_score,
+            t.stock,
+            t.address,
+            t.description,
+            t.flag
+        from (
+                 select
+                     sc.*,
+                     college.name as college_name
+                 from selectable_course sc
+                          join college on sc.college_id = college.college_id
+                 where sc.stock > 0
+             ) t
+                 join user_course on user_course.course_id = t.course_id
+        GROUP BY
+            t.course_id,
+            t.course_name,
+            t.college_id,
+            t.college_name
+        order by t.course_id asc
+    </select>
+
+    <update id="hideBatch" parameterType="int">
+        update selectable_course set flag = case when flag = 1 then 0 else 1 end
+        where course_id = #{courseId}
+    </update>
+
+    <insert id="addCourse">
+        insert into selectable_course (college_id, course_name, teacher, type, course_score, stock, address, description, flag)
+        values (#{collegeId}, #{courseName}, #{teacher}, #{type}, #{courseScore}, #{stock}, #{address}, #{description}, 1)
+    </insert>
+
+    <update id="updateCourse" parameterType="selectableCourse">
+        update selectable_course
+        set college_id = #{collegeId},
+            course_name = #{courseName},
+            teacher = #{teacher},
+            type = #{type},
+            course_score = #{courseScore},
+            stock = #{stock},
+            address = #{address},
+            description = #{description}
+        where course_id = #{courseId}
+    </update>
+
+    <select id="getCourseById" resultMap="selectableCourseMap" parameterType="int">
+        select sc.*, college.name
+        from selectable_course sc, college
+        where sc.college_id = college.college_id
+          and sc.course_id = #{courseId}
+    </select>
+    <select id="getAllCourses" resultType="cn.gdpu.bean.SelectableCourse">
+        select sc.*, college.name as college_name
+        from selectable_course sc
+        left join college on sc.college_id = college.college_id
+        <!-- 普通用户只能看到未隐藏且有库存的课程，管理员可见全部 -->
+        <where>
+            <if test="username != 'admin'">
+                and sc.stock > 0
+                and sc.flag = 1  <!-- flag=1表示课程可见 -->
+            </if>
+        </where>
+    </select>
+</mapper>
