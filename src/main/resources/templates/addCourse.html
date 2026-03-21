@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>添加课程</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!--<link th:href="@{/static/css/semantic.css}" rel="stylesheet" type="text/css">-->
+    <script th:src="@{/static/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/static/js/template-web.js}"></script>
+    <link th:href="@{/static/css/qinstyle.css}" rel="stylesheet">
+    <link th:href="@{/static/layui-v2.5.5/css/layui.css}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" th:src="@{/static/layui-v2.5.5/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common.js}"></script>
+    <script th:src="@{/static/js/semantic.min.js}"></script>
+    <!--semantic-ui 必须用这个 用路径下的不行 会缺失样式-->
+    <link type="text/css" href="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+    <script>
+        var content = [{title: "人体的奥秘"}, {title: "如何学好英语"}, {title: "大学生创新创业指导"}, {title: "婚恋指导"}, {title: "电影的艺术"}, {title: "戏剧欣赏"}, {title: "中药理学"}, {title: "网页设计"}, {title: "计算机网络导论"}, {title: "化妆品学"}, {title: "化学原理"}, {title: "大学生计算机基础课程"}, {title: "人工智能概论"}, {title: "音乐鉴赏"}, {title: "牛顿力学解析"}, {title: "天文学"}, {title: "药品的解析"}, {title: "深入JVM"}, {title: "爬虫原理"}, {title: "浮力概述"}, {title: "深入分布式"}, {title: "Shiro与spring security"}, {title: "zookeeper"}, {title: "有趣的python"},{title: "人体系统论"},{title: "药草认识大全"},{title: "做一个健康的程序员"},{title: "脱发原理"},{title: "引力的奥秘"}];
+
+        // 模拟课程数据，实际应用中应从后端获取
+        var courses = [
+            {
+                courseName: "人体的奥秘",
+                collegeId: "4",
+                courseType: "自然科学类",
+                teacher: "张老师",
+                score: "2",
+                stock: "50",
+                address: "周一上午 10:00 - 12:00，301 教室",
+                description: "介绍人体的生理结构和功能"
+            },
+            {
+                courseName: "如何学好英语",
+                collegeId: "3",
+                courseType: "人文科学类",
+                teacher: "李老师",
+                score: "3",
+                stock: "60",
+                address: "周二下午 2:00 - 4:00，202 教室",
+                description: "分享学习英语的方法和技巧"
+            }
+        ];
+
+        function getName() {
+            var ele = $("#user");
+            var name1;
+            if (ele.length > 0){
+                name1 = ele.html();
+            }
+            //console.log("name1:"+ name1);
+            return name1;
+        }
+
+        $(function () {
+            // 初始化搜索功能，而不是在鼠标悬停时初始化
+            $("#search").search({
+                source: content,
+                onSelect: function(result) {
+                    fillForm(result.title);
+                }
+            });
+        });
+
+        function reload(){
+            window.location.reload();
+        }
+
+        // 填充表单
+        function fillForm(courseName) {
+            var course = courses.find(c => c.courseName === courseName);
+            if (course) {
+                $("#courseName").val(course.courseName);
+                $("#collegeId").val(course.collegeId);
+                $("#courseType").val(course.courseType);
+                $("#teacher").val(course.teacher);
+                $("#score").val(course.score);
+                $("#stock").val(course.stock);
+                $("#address").val(course.address);
+                $("#description").val(course.description);
+            }
+        }
+
+        //弹框提示。
+        function show() {
+            var courseName = $("#courseName").val();
+            var collegeId = $("#collegeId").val();
+            var courseType = $("#courseType").val();
+            var teacher = $("#teacher").val();
+            var score = $("#score").val();
+            var stock = $("#stock").val();
+            var address = $("#address").val();
+            var description = $("#description").val();
+
+            if(courseName === ""){
+                document.getElementById("courseName").style.cssText='border:1px solid red';
+                $("#courseName").attr("placeholder","课程名称不能为空");
+                console.log("课程名称为空");
+                return;
+            }
+            if(collegeId === ""){
+                document.getElementById("collegeId").style.cssText='border:1px solid red';
+                $("#collegeId").attr("placeholder","此处不能为空");
+                console.log("课程所属学院为空");
+                return;
+            }
+            if(courseType === ""){
+                document.getElementById("courseType").style.cssText='border:1px solid red';
+                $("#courseType").attr("placeholder","课程类型不能为空");
+                console.log("课程类型为空");
+                return;
+            }
+            if(teacher === ""){
+                document.getElementById("teacher").style.cssText='border:1px solid red';
+                $("#teacher").attr("placeholder","此处不能为空");
+                console.log("任课老师姓名为空");
+                return;
+            }
+            if(score === ""){
+                document.getElementById("score").style.cssText='border:1px solid red';
+                $("#score").attr("placeholder","此处不能为空");
+                console.log("课程学分为空");
+                return;
+            }
+            if(stock === ""){
+                document.getElementById("stock").style.cssText='border:1px solid red';
+                $("#stock").attr("placeholder","此处不能为空");
+                console.log("课程容量为空");
+                return;
+            }
+            if(address === ""){
+                document.getElementById("address").style.cssText='border:1px solid red';
+                $("#address").attr("placeholder","此处不能为空");
+                console.log("上课时间及地址为空");
+                return;
+            }
+
+            $('#alertUI').modal({
+                onApprove: () => {
+                    addCourse(courseName,collegeId,courseType,teacher,score,stock,address,description);
+                }
+            }).modal('show');
+        }
+
+        //添加课程信息
+        function addCourse(courseName,collegeId,courseType,teacher,score,stock,address,description) {
+            var course = courses.find(c => c.courseName === courseName);
+            var isUpdate = course !== undefined;
+
+            $.ajax({
+                url: "course/addCourseByAdmin", // 请求路径
+                type: "POST", //请求方式
+                data: {
+                    "courseName": courseName,
+                    "courseType": courseType,
+                    "collegeId": collegeId,
+                    "teacher": teacher,
+                    "score": score,
+                    "stock": stock,
+                    "address": address,
+                    "description": description
+                }, //  方式二 推荐使用这种方式
+                success: function (data) {  //这里的data可以随便命名 不过还是有点规则好一些
+                    $('#msg').text(data.msg);
+                    $('#alertMsg').modal('show');
+                    reload();
+                },//响应成功后的回调函数
+                error: function (xhr, status, error) {
+                    console.log("AJAX 请求出错，状态码：" + xhr.status + "，错误信息：" + error);
+                    alert("出错啦... 状态码：" + xhr.status + "，错误信息：" + error);
+                }//表示如果请求响应出现错误，会执行的回调函数
+            });
+        };
+
+        //监听搜索框回车
+        document.onkeydown = function (event) {
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if (e && e.keyCode == 13) {
+                sub();
+            }
+        };
+
+        function sub(){
+            var searchText = document.getElementById("searchText").value;
+            if (searchText.length > 0) {
+                selectByCourseName(1, searchText);
+            } else {
+                $("#msg").html("请输入搜索内容");
+                $("#alertMsg").modal('show');
+            }
+        }
+
+        function selectByCourseName(page, searchText) {
+            // 直接使用 courses 数组进行查找
+            var course = courses.find(c => c.courseName === searchText);
+            if (course) {
+                fillForm(course.courseName);
+            } else {
+                $("#msg").html("未找到相关课程");
+                $("#alertMsg").modal('show');
+            }
+        }
+    </script>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            margin: 0;
+        }
+
+        html {
+            /*background: url(static/img/index.jpg) no-repeat center 0;*/
+            overflow-y: scroll;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #474e50;
+            color: #FFFFFF;
+            padding: 0.5rem 1rem;
+            height: 60px; /* 固定高度，避免内容撑开 */
+            display: flex;
+            align-items: center; /* 垂直居中所有内容 */
+        }
+        /* 左侧内容：靠左对齐 */
+        .left-content {
+            position: absolute;
+            left: 1rem; /* 距离左侧边距 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* 居中标题：相对于页面居中 */
+        .center-title {
+            position: absolute;
+            left: 50%; /* 定位到页面水平中点 */
+            transform: translateX(-50%); /* 向左偏移自身一半宽度，实现完全居中 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .center-title h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            white-space: nowrap; /* 防止标题换行 */
+        }
+
+        /* 右侧内容：靠右对齐 */
+        .right-content {
+            position: absolute;
+            right: 1rem; /* 距离右侧边距 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* 调整菜单样式，避免重叠 */
+        .ui.secondary.menu {
+            margin: 0;
+        }
+        /* 菜单链接样式 - 橙色背景和白色文字 */
+        .menu-link {
+            background-color: #ff8c00 !important;
+            color: #474e50 !important;
+            margin-right: 5px !important;
+            border-radius: 4px !important;
+            transition: background-color 0.3s ease !important;
+        }
+        /* 菜单链接悬停效果 */
+        .menu-link:hover {
+            background-color: #e67e00 !important; /* 深一点的橙色 */
+        }
+
+        /* 新增样式，给标题所在容器添加 margin-top */
+        .ui.segment:first-of-type {
+            margin-top: 80px !important; /* 增加 !important 确保样式优先级 */
+        }
+
+        /* 调整内容区域的最大宽度和居中显示 */
+        .content-wrapper {
+            max-width: 1200px; /* 可根据需要调整 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 0 1rem; /* 左右内边距 */
+        }
+
+        .ui.orange.button {
+            background-color: #ff8c00 !important;
+            color: #474e50 !important;
+            border-radius: 4px !important;
+            transition: background-color 0.3s ease !important;
+        }
+
+        .ui.orange.button:hover {
+            background-color: #e67e00 !important;
+            color: #ffffff !important;
+        }
+
+    </style>
+</head>
+<body>
+<div class="fixed-header">
+    <!-- 左侧元素 -->
+    <div class="left-content">
+        <div class="ui secondary menu">
+            <a class="item menu-link" th:href="@{/}">首页</a>
+        </div>
+    </div>
+
+    <!-- 居中标题（相对于页面） -->
+    <div class="center-title">
+        <h1>网上在线选课系统</h1>
+    </div>
+
+    <!-- 右侧元素 -->
+    <div class="right-content">
+        <div class="ui secondary menu" sec:authorize="isAuthenticated()">
+            <span class="hidden" hidden="hidden" id="user" sec:authentication="name"></span>
+
+            <!-- 学生权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('student')">
+                <a class="item menu-link" th:href="@{/info}">
+                    <i class="icon user"></i>
+                    个人选课信息
+                </a>
+                <a class="item menu-link">
+                    欢迎你,<span sec:authentication="principal.studentName"></span>
+                </a>
+                <a class="item menu-link" href="/logout">
+                    <i class="sign-out icon"></i>注销
+                </a>
+            </div>
+
+            <!-- 管理员权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('admin')">
+                <a class="item menu-link" th:href="@{/courseManage}">
+                    <i class="table icon"></i>
+                    课程管理
+                </a>
+                <a class="item menu-link" th:href="@{/manager}">
+                    <i class="icon user"></i>
+                    学生选课统计
+                </a>
+                <a class="item menu-link">
+                    欢迎你,<span sec:authentication="name"></span>
+                </a>
+                <a class="item menu-link" href="/logout">
+                    <i class="sign-out icon"></i>注销
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content-wrapper"> <!-- 添加内容包装器 -->
+    <div class="ui segment" style="text-align: center;">
+        <h2>添加课程</h2>
+    </div>
+
+    <div class="ui segment" th:fragment="nav-menu">
+        <form class="ui form">
+            <h3 class="ui dividing header">课程信息</h3>
+            <div class="field">
+                <label>课程名称</label>
+                <div class="two fields">
+                    <div class="field">
+                        <input type="text" id="courseName" name="courseName" placeholder="请输入课程名称">
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>课程所属学院</label>
+                    <select class="ui fluid dropdown" id="collegeId" name="collegeId">
+                        <option value="1" th:checked="true">计算机学院</option>
+                        <option value="2" >中药学院</option>
+                        <option value="3" >外国语学院</option>
+                        <option value="4" >健康学院</option>
+                        <option value="5" >物理学院</option>
+                        <option value="6" >艺术学院</option>
+                        <option value="7" >信息学院</option>
+                        <option value="8" >化学学院</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>课程类型</label>
+                    <select class="ui fluid dropdown" id="courseType" name="courseType">
+                        <!--人文科学类    公共艺术类    创新创业类    数学科学类    程序艺术类    自然科学类    限定艺术类-->
+                        <option value="人文科学类" >人文科学类</option>
+                        <option value="公共艺术类" >公共艺术类</option>
+                        <option value="创新创业类" >创新创业类</option>
+                        <option value="数学科学类" >数学科学类</option>
+                        <option value="程序艺术类" >程序艺术类</option>
+                        <option value="自然科学类" >自然科学类</option>
+                        <option value="限定艺术类" >限定艺术类</option>
+                    </select>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>任课老师姓名</label>
+                    <input type="text" id="teacher" name="teacher" placeholder="请输入任课老师名称">
+                </div>
+                <div class="field">
+                    <label>课程学分</label>
+                    <select class="ui fluid dropdown" id="score" name="score">
+                        <option value="1" >1</option>
+                        <option value="2" >2</option>
+                        <option value="3" >3</option>
+                        <option value="4" >4</option>
+                        <option value="5" >5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label>课程容量</label>
+                <div class="two fields">
+                    <div class="field">
+                        <input type="text" id="stock" name="stock" placeholder="请输入学生人数">
+                    </div>
+                    <div class="field">
+                        <!--<input type="text" name="shipping[last-name]" placeholder="">-->
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label>上课时间及地址</label>
+                <div class="field">
+                    <input type="text" id="address" name="address" placeholder="请输入上课时间及地址">
+                </div>
+            </div>
+            <div class="field">
+                <label>课程描述</label>
+                <textarea rows="2" style="margin-top: 0px; margin-bottom: 0px; height: 65px;" id="description" name="description"></textarea>
+            </div>
+            <div class="ui orange button" tabindex="0" onclick="show()">提交信息</div>
+        </form>
+    </div>
+</div>
+<!-- 添加模态框 -->
+<div class="ui small test modal" id="alertUI">
+    <i class="close icon"></i>
+    <div class="header">确认提交</div>
+    <div class="content">你确定要提交这些课程信息吗？</div>
+    <div class="actions">
+        <div class="ui negative button">取消</div>
+        <div class="ui positive button">确定</div>
+    </div>
+</div>
+<div class="ui small test modal" id="alertMsg">
+    <i class="close icon"></i>
+    <div class="header">信息</div>
+    <div class="content">
+        <p id="msg"></p>
+    </div>
+    <div class="actions">
+        <div class="ui positive button">确定</div>
+    </div>
+</div>
+</body>
+</html>

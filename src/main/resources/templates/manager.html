@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang = "en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:sec = "http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>管理后台</title>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1, maximum-scale=1">
+    <script th:src = "@{/static/js/jquery-3.1.1.min.js}"></script>
+    <script th:src = "@{/static/js/template-web.js}"></script>
+    <link th:href = "@{/static/css/qinstyle.css}" rel = "stylesheet">
+    <link th:href = "@{/static/layui-v2.5.5/css/layui.css}" rel = "stylesheet" type = "text/css"/>
+    <script type = "text/javascript" th:src = "@{/static/layui-v2.5.5/layui.js}"></script>
+    <script type = "text/javascript" th:src = "@{/static/js/common.js}"></script>
+    <script th:src = "@{/static/js/semantic.min.js}"></script>
+    <link type = "text/css" href = "https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.css" rel = "stylesheet">
+    <script>
+        var content = [{title:"人体的奥秘"},{title:"如何学好英语"},{title:"大学生创新创业指导"},{title:"婚恋指导"},{title:"电影的艺术"},{title:"戏剧欣赏"},{title:"中药理学"},{title:"网页设计"},{title:"计算机网络导论"},{title:"化妆品学"},{title:"化学原理"},{title:"大学生计算机基础课程"},{title:"人工智能概论"},{title:"音乐鉴赏"},{title:"牛顿力学解析"},{title:"天文学"},{title:"药品的解析"},{title:"深入JVM"},{title:"爬虫原理"},{title:"浮力概述"},{title:"深入分布式"},{title:"Shiro与spring security"},{title:"zookeeper"},{title:"有趣的python"},{title:"人体系统论"},{title:"药草认识大全"},{title:"做一个健康的程序员"},{title:"脱发原理"},{title:"引力的奥秘"}];
+
+        $(function(){
+            //监听搜索框
+            $("#search").mouseover(function(){
+                $("#search").search({source:content});
+            });
+            load(1,"");
+        });
+
+        //加载用户数据
+        function load(page,tCase){
+            var fnname = getFnName(arguments.callee,4);
+            $.ajax({
+                url:"/user/getUsers",
+                type:"POST",
+                data:{"page":page,"limit":8},
+                dataType:"json",
+                success:function(data){fill(fnname,data);},
+                error:function(){alert("出错啦...");}
+            });
+        };
+
+        //填充课程数据
+        function fillCourses(ftname,data,backPage){
+            //标题区域：返回按钮保留自定义类
+            var back = '<div style="text-align: center; margin-bottom: 10px;">' +
+                '<a class="ui button custom-back-button" href="#" onclick="load(\''+ backPage +'\',\'\')">' + // 明确添加ui button类，确保样式基础
+                '<i class="icon reply"></i>返回' +
+                '</a>' +
+                '<h3 style="display: inline-block; margin: 0 10px;">学生信息如下</h3>' +
+                '</div>';
+            $("#back").html(back);
+
+            var tHead = "<tr><th>课程号</th><th>所属学院</th><th>课程名称</th><th>任课老师</th><th>课程类型</th><th>学分</th><th>剩余人数</th><th>上课时间</th><th>操作</th></tr>";
+            $("#thead").html(tHead);
+            $("#pageNum").html("");
+            $("#tbody").html("");
+
+            //分页逻辑（保持不变）
+            $("#totalPage").html(data.totalPage);
+            $("#totalCount").html(data.totalCount);
+            var start, end;
+            if (data.totalPage < 5){
+                start = 1;
+                end = data.totalPage;
+            }else{
+                start = data.currentPage - 2;
+                end = data.currentPage + 2;
+                if (start < 1){start = 1;end = 5;}
+                if (end > data.totalPage){end = data.totalPage;start = end - 4;}
+            }
+
+            //分页按钮生成（保持不变）
+            var lis = '<a class="item" onclick="'+ ftname +'(1,\''+ data.tCase +'\')">首页</a>';
+            var before = data.currentPage - 1 || 1;
+            lis += '<a class="icon item" onclick="'+ ftname +'('+ before +',\''+ data.tCase +'\')"><i class="left chevron icon"></i></a>';
+            for (var j = start; j <= end; j++){
+                lis += '<a class="'+ (data.currentPage == j ? 'active' : '') +' item" onclick="'+ ftname +'('+ j +',\''+ data.tCase +'\')">'+ j +'</a>';
+            }
+            var next = data.currentPage + 1 > data.totalPage ? data.totalPage : data.currentPage + 1;
+            lis += '<a class="icon item" onclick="'+ ftname +'('+ next +',\''+ data.tCase +'\')"><i class="right chevron icon"></i></a>';
+            lis += '<a class="item" onclick="'+ ftname +'('+ data.totalPage +',\''+ data.tCase +'\')">尾页</a>';
+
+            //课程列表生成（保持不变）
+            var list = "";
+            for (var i = 0; i < data.data.length; i++){
+                var course = data.data[i];
+                var tr = '<tr '+(course.stock==0?'class="error"':(course.stock<=10?'class="error"':(course.stock<=25?'class="warning"':'')))+'>';
+                tr += '<th>'+course.courseId+'</th><th>'+course.collegeName+'</th><th>'+course.courseName+'</th>';
+                tr += '<th>'+course.teacher+'</th><th>'+course.type+'</th><th>'+course.courseScore+'</th>';
+                tr += '<th>'+(course.stock==0?'已满人':course.stock)+'</th><th>'+course.address+'</th>';
+                tr += '<td><button class="ui button"><i class="plus icon"></i>无法操作</button></td></tr>';
+                list += tr;
+            }
+
+            $("#pageNum").html(lis);
+            $("#tbody").html(list);
+        }
+
+        //填充用户数据
+        function fill(ftname,data){
+            var back = '<div style="text-align: center; margin-bottom: 10px;">' +
+                '<h3 style="display: inline-block; margin: 0;">学生信息如下</h3>' +
+                '<a href="/ExcelDownload" class="ui twitter button" style="margin-left: 10px; vertical-align: middle;">' +
+                '<i class="icon table"></i>导出信息' +
+                '</a>' +
+                '</div>';
+            $("#back").html(back);
+
+            var thead = "<tr><th>学生姓名</th><th>学生账号</th><th>学生专业</th><th>学生角色</th><th>操作</th></tr>";
+            $("#thead").html(thead);
+            $("#pageNum").html("");
+            $("#tbody").html("");
+
+            //分页逻辑（保持不变）
+            $("#totalPage").html(data.totalPage);
+            $("#totalCount").html(data.totalCount);
+            var start, end;
+            if (data.totalPage < 5){
+                start = 1;
+                end = data.totalPage;
+            }else{
+                start = data.currentPage - 2;
+                end = data.currentPage + 2;
+                if (start < 1){start = 1;end = 5;}
+                if (end > data.totalPage){end = data.totalPage;start = end - 4;}
+            }
+
+            //分页按钮生成（保持不变）
+            var lis = '<a class="item" onclick="'+ ftname +'(1,\''+ data.tCase +'\')">首页</a>';
+            var before = data.currentPage - 1 || 1;
+            lis += '<a class="icon item" onclick="'+ ftname +'('+ before +',\''+ data.tCase +'\')"><i class="left chevron icon"></i></a>';
+            for (var j = start; j <= end; j++){
+                lis += '<a class="'+ (data.currentPage == j ? 'active' : '') +' item" onclick="'+ ftname +'('+ j +',\''+ data.tCase +'\')">'+ j +'</a>';
+            }
+            var next = data.currentPage + 1 > data.totalPage ? data.totalPage : data.currentPage + 1;
+            lis += '<a class="icon item" onclick="'+ ftname +'('+ next +',\''+ data.tCase +'\')"><i class="right chevron icon"></i></a>';
+            lis += '<a class="item" onclick="'+ ftname +'('+ data.totalPage +',\''+ data.tCase +'\')">尾页</a>';
+
+            //用户列表生成（保持不变）
+            var list = "";
+            for (var i = 0; i < data.data.length; i++){
+                var user = data.data[i];
+                var tr = '<tr><th>'+user.studentName+'</th><th>'+user.username+'</th>';
+                tr += '<th>'+user.object+'</th><th>'+user.role+'</th>';
+                tr += '<td><button class="ui twitter button" onclick="checkDetails(\'1\',\''+user.username+'\',\''+data.currentPage+'\')">' +
+                    '<i class="zoom-in icon"></i>查看信息</button></td></tr>';
+                list += tr;
+            }
+
+            $("#pageNum").html(lis);
+            $("#tbody").html(list);
+        };
+
+        //查看学生选课详情
+        function checkDetails(page,userAccount,backPage){
+            var fnname = getFnName(arguments.callee,12);
+            $.ajax({
+                url:"/usercourse/studentInfo",
+                type:"POST",
+                data:{"page":page,"limit":8,"username":userAccount},
+                dataType:"json",
+                success:function(data){fillCourses(fnname,data,backPage);},
+                error:function(){alert("出错啦...");}
+            });
+        }
+
+        //获取函数名
+        var getFnName = function(callee,length){
+            var _callee = callee.toString().replace(/[\s\?]*/g,"");
+            return _callee.substring(8,8 + length);
+        };
+    </script>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            margin: 0;
+        }
+        html {overflow-y: scroll;}
+        .ui.container {
+            display: flex;
+            margin-top: 100px !important;
+        }
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #474e50;
+            color: #FFFFFF;
+            padding: 0.5rem 1rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        .left-content {position: absolute; left: 1rem; display: flex; align-items: center; height: 100%;}
+        .center-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .center-title h1 {margin: 0; font-size: 1.8rem; white-space: nowrap;}
+        .right-content {position: absolute; right: 1rem; display: flex; align-items: center; height: 100%;}
+        .ui.secondary.menu {margin: 0;}
+        .menu-link {
+            background-color: #ff8c00 !important;
+            color: #474e50 !important;
+            margin-right: 5px !important;
+            border-radius: 4px !important;
+            transition: background-color 0.3s ease !important;
+        }
+        .menu-link:hover {background-color: #e67e00 !important;}
+        .ui.twitter.button {
+            background-color: #ff8c00;
+            color: #474e50;
+            text-shadow: none;
+            background-image: none;
+            box-shadow: 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
+        }
+        .ui.twitter.button:hover {background-color: #ff8c00; color: #FFFFFF;}
+        .ui.segment {
+            padding: 15px !important;
+            margin-bottom: 20px !important;
+        }
+        #back {
+            margin-bottom: 10px !important;
+        }
+        table {margin-top: 10px !important;}
+
+        /* 调整：返回按钮样式 - 移除背景色，仅保留文字颜色和悬停效果 */
+        a.ui.button.custom-back-button {
+            background-color: transparent !important; /* 无背景色 */
+            color: #ffa500 !important; /* 橙色文字 */
+            margin-right: 10px !important;
+            border-radius: 4px !important;
+            transition: all 0.3s ease !important;
+            padding: 0.5em 1em !important; /* 保持适当的内边距 */
+        }
+        a.ui.button.custom-back-button:hover {
+            color: #474e50 !important; /* 悬停时文字颜色变深 */
+        }
+    </style>
+</head>
+<body>
+<div class="fixed-header">
+    <div class="left-content">
+        <div class="ui secondary menu">
+            <a class="item menu-link" th:href="@{/}">首页</a>
+        </div>
+    </div>
+    <div class="center-title">
+        <h1>网上在线选课系统</h1>
+    </div>
+    <div class="right-content">
+        <div class="ui secondary menu" sec:authorize="isAuthenticated()">
+            <span class="hidden" hidden="hidden" id="user" sec:authentication="name"></span>
+            <!-- 学生权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('student')">
+                <a class="item menu-link" th:href="@{/info}"><i class="icon user"></i>个人选课信息</a>
+                <a class="item menu-link">欢迎你,<span sec:authentication="principal.studentName"></span></a>
+                <a class="item menu-link" href="/logout"><i class="sign-out icon"></i>注销</a>
+            </div>
+            <!-- 管理员权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('admin')">
+                <a class="item menu-link" th:href="@{/courseManage}"><i class="table icon"></i>课程管理</a>
+                <a class="item menu-link" th:href="@{/manager}"><i class="icon user"></i>学生选课统计</a>
+                <a class="item menu-link">欢迎你,<span sec:authentication="name"></span></a>
+                <a class="item menu-link" href="/logout"><i class="sign-out icon"></i>注销</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!--主容器-->
+<div class="ui container" th:width="1500px">
+    <div class="ui segment" style="text-align: center; width: 100%;">
+        <div id="back">
+            <h3>学生信息如下</h3>
+        </div>
+        <table class="ui selectable celled table" id="courseTable" style="text-align: center; width: 100%;">
+            <thead id="thead">
+            <tr>
+                <th>学生姓名</th>
+                <th>学生账号</th>
+                <th>学生专业</th>
+                <th>学生角色</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+            <tr>
+                <td>test</td>
+                <td>123123123</td>
+                <td>计算机科学与技术</td>
+                <td>student</td>
+                <td><button class="ui twitter button"><i class="zoom-in icon"></i>查看信息</button></td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="5">
+                    共<i id="totalPage">12</i>页,<i id="totalCount">132</i>条数据
+                    <div class="ui right floated pagination menu" id="pageNum">
+                        <a class="item">首页</a>
+                        <a class="icon item"><i class="left chevron icon"></i></a>
+                        <a class="item">1</a>
+                        <a class="item">2</a>
+                        <a class="item">3</a>
+                        <a class="icon item"><i class="right chevron icon"></i></a>
+                        <a class="item">尾页</a>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+</body>
+</html>

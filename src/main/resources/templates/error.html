@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>错误信息</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!--<link th:href="@{/static/css/semantic.css}" rel="stylesheet" type="text/css">-->
+    <script th:src="@{/static/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/static/js/template-web.js}"></script>
+    <link th:href="@{/static/css/qinstyle.css}" rel="stylesheet">
+    <link th:href="@{/static/layui-v2.5.5/css/layui.css}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" th:src="@{/static/layui-v2.5.5/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common.js}"></script>
+    <script th:src="@{/static/js/semantic.min.js}"></script>
+    <!--semantic-ui 必须用这个 用路径下的不行 会缺失样式-->
+    <link type="text/css" href="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            margin: 0;
+        }
+
+        html {
+            /*background: url(static/img/index.jpg) no-repeat center 0;*/
+            overflow-y: scroll;
+        }
+
+        .ui.container {
+            display: flex;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #474e50;
+            color: #FFFFFF;
+            padding: 0.5rem 1rem;
+            height: 60px; /* 固定高度，避免内容撑开 */
+            display: flex;
+            align-items: center; /* 垂直居中所有内容 */
+        }
+        /* 左侧内容：靠左对齐 */
+        .left-content {
+            position: absolute;
+            left: 1rem; /* 距离左侧边距 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* 居中标题：相对于页面居中 */
+        .center-title {
+            position: absolute;
+            left: 50%; /* 定位到页面水平中点 */
+            transform: translateX(-50%); /* 向左偏移自身一半宽度，实现完全居中 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .center-title h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            white-space: nowrap; /* 防止标题换行 */
+        }
+
+        /* 右侧内容：靠右对齐 */
+        .right-content {
+            position: absolute;
+            right: 1rem; /* 距离右侧边距 */
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* 调整菜单样式，避免重叠 */
+        .ui.secondary.menu {
+            margin: 0;
+        }
+
+        /* 主内容区下移，避免被固定头部遮挡 */
+        .ui.container {
+            margin-top: 100px !important; /* 根据头部高度调整 */
+        }
+
+        /* 搜索框和筛选按钮容器样式 */
+        .search-filter-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* 统一按钮样式 */
+        .search-filter-container .ui.button {
+            margin-left: 5px;
+        }
+
+        /* 菜单链接样式 - 橙色背景和白色文字 */
+        .menu-link {
+            background-color: #ff8c00 !important;
+            color: #474e50 !important;
+            margin-right: 5px !important;
+            border-radius: 4px !important;
+            transition: background-color 0.3s ease !important;
+        }
+
+        /* 菜单链接悬停效果 */
+        .menu-link:hover {
+            background-color: #e67e00 !important; /* 深一点的橙色 */
+        }
+    </style>
+</head>
+<body>
+<div class="fixed-header">
+    <!-- 左侧元素 -->
+    <div class="left-content">
+        <div class="ui secondary menu">
+            <a class="item menu-link" th:href="@{/}">首页</a>
+        </div>
+    </div>
+
+    <!-- 居中标题（相对于页面） -->
+    <div class="center-title">
+        <h1>网上在线选课系统</h1>
+    </div>
+
+    <!-- 右侧元素 -->
+    <div class="right-content">
+        <div class="ui secondary menu" sec:authorize="isAuthenticated()">
+            <span class="hidden" hidden="hidden" id="user" sec:authentication="name"></span>
+
+            <!-- 学生权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('student')">
+                <a class="item menu-link" th:href="@{/info}">
+                    <i class="icon user"></i>
+                    个人选课信息
+                </a>
+                <a class="item menu-link">
+                    欢迎你,<span sec:authentication="principal.studentName"></span>
+                </a>
+                <a class="item menu-link" href="/logout">
+                    <i class="sign-out icon"></i>注销
+                </a>
+            </div>
+
+            <!-- 管理员权限菜单 -->
+            <div class="right menu" sec:authorize="hasAuthority('admin')">
+                <a class="item menu-link" th:href="@{/courseManage}">
+                    <i class="table icon"></i>
+                    课程管理
+                </a>
+                <a class="item menu-link" th:href="@{/manager}">
+                    <i class="icon user"></i>
+                    学生选课统计
+                </a>
+                <a class="item menu-link">
+                    欢迎你,<span sec:authentication="name"></span>
+                </a>
+                <a class="item menu-link" href="/logout">
+                    <i class="sign-out icon"></i>注销
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!--主容器-->
+<div class="ui container" th:width="1500px">
+    <div class="ui small test modal" id="alertUI">
+        <i class="close icon"></i>
+        <div class="header">
+            退选课程
+        </div>
+        <div class="content">
+            <p>你确定要退选课程吗？</p>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">
+                取消
+            </div>
+            <div class="ui positive button">
+                确定
+            </div>
+        </div>
+    </div>
+    <div class="ui small test modal" id="alertMsg">
+        <i class="close icon"></i>
+        <div class="header">
+            信息
+        </div>
+        <div class="content">
+            <p id="msg"></p>
+        </div>
+        <div class="actions">
+            <div class="ui positive button" onclick="">
+                确定
+            </div>
+        </div>
+    </div>
+    <div class="ui negative message">
+        <i class="close icon"></i>
+        <div class="header">
+            <h1>用户权限不足或系统异常</h1>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
