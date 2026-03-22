@@ -47,6 +47,7 @@ A web-based course selection system built with Spring Boot.
 src/main/java        后端业务逻辑代码
 src/main/resources   配置文件、模板页面、静态资源、Mapper文件
 pom.xml              Maven依赖管理
+```
 ---
 
 ## 📸 System Screenshots 系统界面展示
