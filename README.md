@@ -47,3 +47,19 @@ A web-based course selection system built with Spring Boot.
 src/main/java        后端业务逻辑代码
 src/main/resources   配置文件、模板页面、静态资源、Mapper文件
 pom.xml              Maven依赖管理
+
+---
+
+## 📸 System Screenshots 系统界面展示
+
+### Login Page 登录界面
+![login](docs/images/login.png)
+
+### Student Course Selection 学生选课界面
+![student](docs/images/student.png)
+
+### Admin Course Management 管理员课程管理界面
+![admin](docs/images/admin.png)
+
+### Timetable View 学生课表界面
+![timetable](docs/images/timetable.png)
