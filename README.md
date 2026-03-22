@@ -1,28 +1,49 @@
-# OnlineCourseSelectionSystem
+# Online Course Selection System 在线学生选课系统
 
-#### 介绍
-前端使用semanticUI渲染及Ajax动态填写，后端采用基于springboot，涉及的技术栈有mybatis，spring，springMVC，spring security，log4j，swaggerUI等。IDE工具: IDEA。
+A web-based course selection system built with Spring Boot.  
+一个基于 Spring Boot 实现的高校在线选课管理系统实践项目。
 
-#### 软件架构
-软件架构说明
+---
 
+## 📌 Project Overview 项目简介
 
-#### 安装教程
+本项目实现了一个面向高校教学场景的在线选课系统，支持学生选课与退课、课程信息管理、角色权限控制以及基本的云端部署验证。  
+系统采用典型的 B/S 架构设计，通过后端业务逻辑与前端页面交互，实现选课流程的完整功能闭环。
 
-1.  拉取本仓库后, 静待对应jar包下载，或自行修改jdk配置及maven配置。
-2.  根据yml文件中的redis,自行下载redis并配对好端口
-3.  先运行redis后,再启动项目.
-4.  访问localhost:8080即可
+---
 
-#### 另外说明
+## 🚀 Main Features 核心功能
 
-1. 本项目swagger在线文档有两种显示网站
+- User authentication & role-based authorization（基于 Spring Security 的登录认证与权限控制）
+- Course browsing and filtering（课程浏览与条件筛选）
+- Course selection and withdrawal（选课 / 退课功能）
+- Course conflict checking（选课冲突检测）
+- Personal timetable display（学生课表展示）
+- Admin-side course management（管理员课程信息维护）
+- Excel data export（选课数据导出）
+- Basic teacher-side interface（教师角色页面扩展）
+- Linux cloud deployment verification（Linux 云服务器部署实践）
 
-   localhost:8080/doc.html
+---
 
-   localhost:8080/swagger-ui.html
+## 🧩 Tech Stack 技术栈
 
-#### 参与贡献
+- Java  
+- Spring Boot  
+- Spring MVC  
+- Spring Security  
+- MyBatis  
+- MySQL / MariaDB  
+- Thymeleaf + Semantic UI + LayUI  
+- Maven  
+- Redis  
+- Linux
 
-1.  Fork 本仓库并star本仓库
+---
 
+## 🏗️ Project Structure 项目结构
+
+```text
+src/main/java        后端业务逻辑代码
+src/main/resources   配置文件、模板页面、静态资源、Mapper文件
+pom.xml              Maven依赖管理
